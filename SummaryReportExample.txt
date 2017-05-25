@@ -1,0 +1,139 @@
+==========================================================================
+                                                           by Leon Jalfon 
+      _______ __        _____                                             
+     / ____(_) /__     / ___/__  ______ ___  ____ ___  ____ ________  __  
+    / /_  / / / _ \    \__ \/ / / / __ '__ \/ __ '__ \/ __ '/ ___/ / / /  
+   / __/ / / /  __/   ___/ / /_/ / / / / / / / / / / / /_/ / /  / /_/ /   
+  /_/   /_/_/\___/   /____/\__._/_/ /_/ /_/_/ /_/ /_/\__,_/_/   \__, /    
+                                                               /____/     
+==========================================================================
+
+Date: 25/05/2017 11:25:50 AM
+File: C:\Users\leonj\Desktop\RTI
+
+
+Extension     Size (MB) Count
+---------     --------- -----
+gitattributes         0     1
+gitignore          0.01     4
+config             0.02    13
+xml               31.02   587
+cmd                0.17   114
+txt                0.48   145
+java               7.45  1751
+json               0.02    25
+sh                 0.08    27
+MF                    0     7
+wsdl               0.79    33
+xsb                 0.1   493
+xsd                0.74   131
+properties         0.25   150
+template           0.04    20
+csv               25.59    89
+jar              188.32   204
+access                0     1
+password              0     1
+                  73.04    96
+dtd                0.01     2
+dacpac              1.1     9
+dbschema          53.53    18
+dll                46.2   190
+sql               20.81  2036
+sln                0.02    10
+vssscc                0     6
+suo                0.34     4
+sqlproj            0.39     6
+user                  0     5
+vspscc                0     4
+dbmdl              8.25     1
+refactorlog           0     2
+bat                0.09    39
+dtsx               1.67    28
+dtproj             0.01     1
+exe                7.97    34
+init               0.01     2
+custom                0     2
+tgz                0.79     1
+conf               0.06    18
+install4j          1.46     1
+spc                0.01     1
+pfx                   0     1
+pvk                   0     1
+jpg                0.11    14
+png                3.81  1543
+ico                0.93    20
+utf8                  0     1
+vbs                   0     3
+chm                0.09     1
+sfx                 0.3     2
+README                0     2
+info               0.18     1
+mft                   0     1
+ver                   0     1
+mo                 1.07    38
+append                0     9
+html               0.41    62
+so                  0.3     3
+cfg                0.01     1
+zip               41.29    11
+ats                0.03     1
+textile            0.01     1
+yml                0.01     2
+policy             0.01     2
+setup                 0     1
+rsp                0.22     7
+ora                0.01     5
+log                   0     1
+url                   0    14
+lnk                0.01     4
+war                0.28     1
+db                 0.01     3
+tmpl               0.06    27
+lock                  0     6
+gif                1.41    93
+props                 0     1
+resp                  0     1
+py                 0.02    22
+wls                   0     1
+cs                 1.01    39
+csproj             0.05     8
+manifest              0     4
+pdb                1.79    18
+uitest             0.57     6
+dmp                2.08     2
+htm                0.02     6
+docx               0.05     1
+xaml                  0     1
+~csv                  0     1
+jsp                0.21    49
+css                 2.6   110
+inc                0.01     5
+js                11.79   422
+ccf                   0     1
+class              0.02     2
+mar                0.11     5
+list                  0     2
+aar                0.01     1
+datasource         0.01    16
+svcinfo            0.27     4
+disco                 0     2
+svcmap             0.01     2
+map               15.14     9
+rb                    0     1
+gzip               0.05     1
+md                 0.09    14
+ts                    0     1
+php                   0     1
+eot                0.61    18
+ttf                0.61    18
+woff               0.38    18
+scss               0.08     9
+ftl                0.02     6
+vm                 0.01     8
+babelrc               0     1
+styl               0.03    29
+jmx                0.09     5
+iml                   0     2
+
+
+==========================================================================
