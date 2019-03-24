@@ -7,7 +7,11 @@ param
     [Parameter(Mandatory=$true)]
     $Path,
     [Parameter(Mandatory=$false)]
-    $File
+    $File,
+    [Parameter(Mandatory=$false)]
+    $FileExceptions,
+    [Parameter(Mandatory=$false)]
+    $DetailedFiles
 )
 
 ########################################################################################################################
@@ -57,71 +61,188 @@ function ValidateFileArgument
     }
 }
 
+function Get-FilesByTypeSummary
+{
+   param
+   (
+       [Parameter(Mandatory=$true)]
+       $Path
+   )
+
+   Write-Host "Retrieving Files By Type Summary..."
+   
+   $Data = Get-ChildItem -Path $Path -Recurse | Where-Object { !$_.PSIsContainer } |Group-Object Extension | Select-Object @{n="Extension";e={$_.Name -replace '^\.'}}, @{n="Size (MB)";e={[math]::Round((($_.Group | Measure-Object Length -Sum).Sum / 1MB), 2)}}, Count  
+   return $Data          
+}
+
+function Get-FilesByType
+{
+    param
+    (
+       [Parameter(Mandatory=$true)]
+       $Path,
+       [Parameter(Mandatory=$true)]
+       $FileExceptions="cs,xml,txt,cxq"
+    )
+
+    Write-Host "Retrieving Files By Type Details..."
+
+    $FilesByExtension = Get-ChildItem -Path $Path -Recurse | Where-Object { !$_.PSIsContainer } | Group-Object Extension
+    
+    $Exceptions = @()
+    foreach($Exception in $FileExceptions.Split(",")){$Exceptions += ".$Exception"}
+    
+    $TempFile = $File.Substring(0,$File.Length-4)+"_temp.txt"
+
+    foreach($FileType in $FilesByExtension)
+    {
+      if($FileType.Name -notin $Exceptions)
+      {
+        Add-Content $TempFile  $FileType.Name 
+        Add-Content $TempFile  "------------------------------------------------------"  
+        
+        foreach($Filename in $FileType.Group)
+        {
+          Add-Content $TempFile $Filename
+        }
+
+        Add-Content $TempFile ""
+      }
+    }
+
+    $Data = Get-Content $TempFile 
+    Remove-Item $TempFile
+     
+    return $Data
+}
+
+function Create-SummaryFile
+{
+   param
+   (
+       [Parameter(Mandatory=$true)]
+       $File,
+       [Parameter(Mandatory=$true)]
+       $Data
+   )
+
+   # Create temp file with the results
+
+   $TempFile = $File.Substring(0,$File.Length-4)+"_temp.txt"
+   Write-Output $Data[0] > $TempFile
+   Write-Output "" >> $TempFile
+   Write-Output "******************************************************" >> $TempFile
+   Write-Output "* FILE NAME BY FILE EXTENSION TYPE" >> $TempFile
+   Write-Output "******************************************************" >> $TempFile
+   Write-Output "" >> $TempFile
+   Write-Output $Data[1] >> $TempFile
+   Write-Output "" >> $TempFile
+   Write-Output "******************************************************" >> $TempFile
+   Write-Output "* FULL PATH BY FILE EXTENSION TYPE" >> $TempFile
+   Write-Output "******************************************************" >> $TempFile
+   Write-Output "" >> $TempFile
+   Write-Output $Data[2] >> $TempFile
+
+
+   #Create the report
+
+   Write-Host "Creating the report..."
+   $TempFileContent = Get-Content $TempFile
+
+   Add-Content $File "======================================================"
+   Add-Content $File "    _____                              by Leon Jalfon "
+   Add-Content $File "   / ___/__  ______ ___  ____ ___  ____ ________  __  "
+   Add-Content $File "   \__ \/ / / / __ '__ \/ __ '__ \/ __ '/ ___/ / / /  "
+   Add-Content $File "  ___/ / /_/ / / / / / / / / / / / /_/ / /  / /_/ /   "
+   Add-Content $File " /____/\__._/_/ /_/ /_/_/ /_/ /_/\__,_/_/   \__, /    "
+   Add-Content $File "                                           /____/     " 
+   Add-Content $File "======================================================"
+   Add-Content $File ""
+
+   $dateLine = "Date: " + (Get-Date).ToString('dd/MM/yyyy hh:mm:ss tt')
+
+   Add-Content $File $dateLine
+   Add-Content $File "File: $Path"
+   Add-Content $File ""
+
+
+   # Add contents from temp file and remove it
+
+   Get-Content $TempFile | Add-Content $File
+   Remove-Item -Path $TempFile -Force
+
+   # Finish
+
+   Add-Content $File "=========================================================================="
+   Write-Host "Results are available in {$File}"
+}
+
+function Get-SpecifiedFilePaths
+{
+    param
+    (
+       [Parameter(Mandatory=$true)]
+       $Path,
+       [Parameter(Mandatory=$true)]
+       $SearchFiles="dll,png"
+    )
+
+    Write-Host "Retrieving Specified Files Paths..."
+
+    $FilesPathByExtension = Get-ChildItem -Path $Path -Recurse | Where-Object { !$_.PSIsContainer } | select FullName, Extension
+    
+    $FilesToSearch = @()
+    foreach($FileToSearch in $SearchFiles.Split(",")){$FilesToSearch += ".$FileToSearch"}
+    
+    $TempFile = $File.Substring(0,$File.Length-4)+"_temp.txt"
+
+    foreach($Extension in $FilesToSearch)
+    {
+      Add-Content $TempFile  $Extension
+      Add-Content $TempFile  "------------------------------------------------------"
+
+      $FilesByFullName = $FilesPathByExtension | Where-Object {$_.Extension -eq "$Extension"} | Select FullName
+      foreach($FilePath in $FilesByFullName.FullName){Add-Content $TempFile $FilePath}
+      
+      Add-Content $TempFile ""
+    }
+
+    $Data = Get-Content $TempFile 
+    Remove-Item $TempFile
+     
+    return $Data
+}
+
 ########################################################################################################################
 # RUN SCRIPT
 ########################################################################################################################
 
 try
 {
-    if($File)
+    $FilesByTypeSummary = Get-FilesByTypeSummary -Path $Path
+    $FilesByType = Get-FilesByType -Path $Path -FileExceptions $FileExceptions
+
+    if($DetailedFiles)
     {
-        if(ValidateFileArgument -File $File) 
-        {
-            # Group by extension (count + total)
-
-            Write-Host "Inspecting the specified path..."
-            $Data = Get-ChildItem -Path $Path -Recurse |Where-Object { !$_.PSIsContainer } |Group-Object Extension |Select-Object @{n="Extension";e={$_.Name -replace '^\.'}}, @{n="Size (MB)";e={[math]::Round((($_.Group | Measure-Object Length -Sum).Sum / 1MB), 2)}}, Count
-            
-
-            # Create temp file with the results
-
-            $TempFile = $File.Substring(0,$File.Length-4)+"_temp.txt"
-            Write-Output $Data > $TempFile
-
-
-            #Create the report
-
-            Write-Host "Creating the report..."
-            $TempFileContent = Get-Content $TempFile
-
-            Add-Content $File "=========================================================================="
-            Add-Content $File "                                                           by Leon Jalfon "
-            Add-Content $File "      _______ __        _____                                             "
-            Add-Content $File "     / ____(_) /__     / ___/__  ______ ___  ____ ___  ____ ________  __  "
-            Add-Content $File "    / /_  / / / _ \    \__ \/ / / / __ '__ \/ __ '__ \/ __ '/ ___/ / / /  "
-            Add-Content $File "   / __/ / / /  __/   ___/ / /_/ / / / / / / / / / / / /_/ / /  / /_/ /   "
-            Add-Content $File "  /_/   /_/_/\___/   /____/\__._/_/ /_/ /_/_/ /_/ /_/\__,_/_/   \__, /    "
-            Add-Content $File "                                                               /____/     " 
-            Add-Content $File "=========================================================================="
-            Add-Content $File ""
-
-            $dateLine = "Date: " + (Get-Date).ToString('dd/MM/yyyy hh:mm:ss tt')
-
-            Add-Content $File $dateLine
-            Add-Content $File "File: $Path"
-            Add-Content $File ""
-
-
-            # Add contents from temp file and remove it
-
-            Get-Content $TempFile | Add-Content $File
-            Remove-Item -Path $TempFile -Force
-
-
-            # Finish
-            Add-Content $File "=========================================================================="
-            Write-Host "Results are available in {$File}"
-        }
+       $FilesPathsByType = Get-SpecifiedFilePaths -Path $Path -SearchFiles $DetailedFiles
+    }
+    
+    if($File -and (ValidateFileArgument -File $File))
+    {
+        Create-SummaryFile -File $File -Data $FilesByTypeSummary,$FilesByType,$FilesPathsByType 
     }
     else
     {
-        # Group by extension (count + total)
-        Get-ChildItem -Path $Path -Recurse |Where-Object { !$_.PSIsContainer } |Group-Object Extension |Select-Object @{n="Extension";e={$_.Name -replace '^\.'}}, @{n="Size (MB)";e={[math]::Round((($_.Group | Measure-Object Length -Sum).Sum / 1MB), 2)}}, Count
+        Write-Host $FilesByTypeSummary
+        Write-Host ""
+        Write-Host $FilesByType
+        Write-Host ""
+        Write-Host $FilesPathsByType
     }
 }
 catch
 {
-    Write-Host "Error, Exception: $_.Exception.Message"
+    Write-Host "Error, Exception: $_"
 }
 
 ########################################################################################################################

@@ -42,7 +42,7 @@ Powershell script to retrieve and summarize the file content of an specific dire
 ```
 - All
 ```
-.\FileContentInspector.ps1 -Path "C:\Users\user\Desktop\File" -File "C:\Users\user\Desktop\SummaryFile.txt"
+.\FileContentInspector.ps1 -Path "C:\Users\user\Desktop\File" -File "C:\Users\user\Desktop\SummaryFile.txt" -FileExceptions "cs,txt,config" -DetailedFiles "dll,png,jpg"
 ```
  
 ---
@@ -51,7 +51,6 @@ Powershell script to retrieve and summarize the file content of an specific dire
 
  - Show all the files types stored in the specified path
  - Show the total files of each type in the specified path (count and total)
- - See an example in the [SummaryReportExample](SummaryReportExample.txt)
  
 ---
 
